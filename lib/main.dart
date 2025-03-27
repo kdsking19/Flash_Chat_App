@@ -20,9 +20,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final supabaseService = SupabaseService();
     final isLoggedIn = supabaseService.currentUser != null;
-
     return MaterialApp(
-      title: 'WhatsApp Clone',
+      debugShowCheckedModeBanner: false,
+      title: 'FlashChat',
       theme: ThemeData(
         primarySwatch: Colors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,

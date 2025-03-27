@@ -85,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0,
         backgroundColor: Colors.teal,
         title: const Text(
-          'WhatsApp Clone',
+          'Flash Chat',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,

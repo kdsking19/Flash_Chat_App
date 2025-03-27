@@ -15,7 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _supabaseService = SupabaseService();
   bool _isLoading = false;
-  bool _showPassword = false; // Add this line to define _showPassword
+  bool _showPassword = false;
 
   Future<void> _login() async {
     final email = _emailController.text.trim();
@@ -23,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter email and password')),
+        const SnackBar(content: Text('Please enter email and password', style: TextStyle(fontSize: 12, color: Colors.white),)),
       );
       return;
     }
@@ -82,6 +82,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 Center(
                   child: Column(
                     children: [
+                      SizedBox(height: MediaQuery.of(context).size.height*0.04),
+                      const Text(
+                        'Welcome to Flash Chat App',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.teal,
+                        ),
+                      ),
+                      SizedBox(height: MediaQuery.of(context).size.height*0.08),
                       Container(
                         height: 100,
                         width: 100,
@@ -89,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: Colors.teal.shade50,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.chat_rounded,
                           size: 60,
                           color: Colors.teal,
@@ -97,33 +107,26 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 16),
                       const Text(
-                        'Welcome Back',
+                        'Sign in',
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: 25,
                           fontWeight: FontWeight.bold,
                           color: Colors.teal,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Sign in to continue',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey[600],
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 40),
-                
+                const SizedBox(height: 20),
                 // Email field
                 TextField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: 'Email',
+                    labelStyle: TextStyle(color: Colors.grey),
                     hintText: 'Enter your email',
+                    hintStyle: TextStyle(color: Colors.grey),
                     prefixIcon: const Icon(Icons.email_outlined, color: Colors.teal),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -149,7 +152,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   obscureText: !_showPassword,
                   decoration: InputDecoration(
                     labelText: 'Password',
+                    labelStyle: TextStyle(color: Colors.grey),
                     hintText: 'Enter your password',
+                    hintStyle: TextStyle(color: Colors.grey),
                     prefixIcon: const Icon(Icons.lock_outline, color: Colors.teal),
                     suffixIcon: IconButton(
                       icon: Icon(
