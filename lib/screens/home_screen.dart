@@ -3,8 +3,6 @@ import 'package:chat_app/services/supabase_service.dart';
 import 'package:chat_app/models/user_model.dart';
 import 'package:chat_app/screens/chat_screen.dart';
 import 'package:chat_app/screens/login_screen.dart';
-import 'package:badges/badges.dart' as badges;
-import 'package:timeago/timeago.dart' as timeago;
 import 'package:chat_app/screens/ai_chat_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -119,6 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
           : ListView.builder(
               itemCount: _users.length + 1,
               itemBuilder: (context, index) {
+                // Update the AI chat card
                 if (index == 0) {
                   return Card(
                     margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -132,17 +131,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 50,
                         height: 50,
                         decoration: BoxDecoration(
-                          color: Colors.purple.shade100,
+                          color: Colors.teal.shade100, // Changed from purple.shade100 to teal.shade100
                           borderRadius: BorderRadius.circular(25),
                         ),
                         child: const Icon(
                           Icons.smart_toy,
-                          color: Colors.purple,
+                          color: Colors.teal, // Changed from purple to teal
                           size: 28,
                         ),
                       ),
                       title: const Text(
-                        'DeepSeek AI',
+                        'Llama AI',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -178,6 +177,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
                 
+                // Update the drawer
+                ListTile(
+                  leading: const Icon(Icons.smart_toy, color: Colors.teal), // Changed from purple to teal
+                  title: const Text('Chat with Llama AI'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AIChatScreen()),
+                    );
+                  },
+                );
                 final user = _users[index - 1];
                 return Card(
                   margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -300,7 +311,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.smart_toy, color: Colors.purple),
-              title: const Text('Chat with DeepSeek AI'),
+              title: const Text('Chat with Groq AI'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(

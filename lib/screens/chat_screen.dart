@@ -120,7 +120,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.user.username ?? 'Chat'),
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Colors.teal, // Ensure this is teal
         actions: [
           IconButton(
             icon: const Icon(Icons.smart_toy),
@@ -306,8 +306,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       textCapitalization: TextCapitalization.sentences,
                     ),
                   ),
+                  // Update the send button color
                   IconButton(
-                    icon: const Icon(Icons.send, color: Colors.teal),
+                    icon: const Icon(Icons.send),
+                    color: Colors.teal, // Ensure this is teal
                     onPressed: _sendMessage,
                   ),
                 ],

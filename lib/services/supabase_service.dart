@@ -123,11 +123,14 @@ class SupabaseService {
     return response;
   }
   
-  // DeepSeek AI chat method
+  // Groq AI chat method
   Future<String> chatWithAI(String message) async {
     try {
-      final apiKey = "sk-141a848045c946ee845fb00be0b8cfb8";
-      final url = Uri.parse('https://api.deepseek.com/v1/chat/completions');
+      const apiKey = "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";
+      final url = Uri.parse('https://api.groq.com/openai/v1/chat/completions');
+      
+      // Using Llama model from Groq
+      const model = "llama3-8b-8192";
       
       final response = await http.post(
         url,
@@ -136,7 +139,7 @@ class SupabaseService {
           'Authorization': 'Bearer $apiKey',
         },
         body: jsonEncode({
-          'model': 'deepseek-chat',
+          'model': model,
           'messages': [
             {'role': 'system', 'content': 'You are a helpful assistant.'},
             {'role': 'user', 'content': message}
@@ -149,14 +152,10 @@ class SupabaseService {
         final data = jsonDecode(response.body);
         return data['choices'][0]['message']['content'];
       } else {
-        print('Error from DeepSeek API: ${response.statusCode} - ${response.body}');
+        print('Error from Groq API: ${response.statusCode} - ${response.body}');
         
-        // If insufficient balance, use a fallback response
-        if (response.statusCode == 402) {
-          return _generateFallbackResponse(message);
-        }
-        
-        return "Sorry, I couldn't process your request at the moment. Status: ${response.statusCode}";
+        // If error occurs, use fallback response
+        return _generateFallbackResponse(message);
       }
     } catch (e) {
       print('Error chatting with AI: $e');
@@ -180,7 +179,7 @@ class SupabaseService {
     } else if (message.contains('weather')) {
       return "I'm sorry, I don't have access to real-time weather data. You might want to check a weather app or website for that information.";
     } else if (message.contains('name')) {
-      return "I'm DeepSeek AI, your virtual assistant.";
+      return "I'm Llama AI, your virtual assistant.";
     } else if (message.contains('joke')) {
       return "Why don't scientists trust atoms? Because they make up everything!";
     } else if (message.contains('time')) {

@@ -20,6 +20,7 @@ version: 1.0.0+1
 
 environment:
   sdk: '>=3.2.6 <4.0.0'
+  flutter: ">=3.16.9 <3.18.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -49,14 +50,10 @@ dependencies:
   win32: ^5.5.0
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
+  # Comment out or remove flutter_test temporarily
+  # flutter_test:
+  #   sdk: flutter
 
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
   flutter_lints: ^2.0.0
 
 # For information on the generic Dart part of this file, see the

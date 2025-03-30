@@ -14,14 +14,14 @@ class _AIChatScreenState extends State<AIChatScreen> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
   final _supabaseService = SupabaseService();
-  List<MessageModel> _messages = [];
+  final List<MessageModel> _messages = [];
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     // Add welcome message
-    _addAIMessage("Hello! I'm DeepSeek AI. How can I help you today?");
+    _addAIMessage("Hello! I'm Groq AI. How can I help you today?");
   }
 
   @override
@@ -106,7 +106,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.teal, // Changed from purple to teal
         title: Row(
           children: [
             Container(
@@ -127,7 +127,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'DeepSeek AI',
+                  'Llama AI',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -151,7 +151,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
             onPressed: () {
               setState(() {
                 _messages.clear();
-                _addAIMessage("Hello! I'm DeepSeek AI. How can I help you today?");
+                _addAIMessage("Hello! I'm Groq AI. How can I help you today?");
               });
             },
           ),
@@ -225,7 +225,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
             ),
           ),
           if (_isLoading)
-            Container(
+            SizedBox(
               height: 2,
               child: const LinearProgressIndicator(
                 backgroundColor: Colors.transparent,
@@ -256,7 +256,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                     child: TextField(
                       controller: _messageController,
                       decoration: InputDecoration(
-                        hintText: 'Ask DeepSeek AI something...',
+                        hintText: 'Ask Groq AI something...',
                         hintStyle: TextStyle(color: Colors.grey[500]),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
@@ -275,8 +275,11 @@ class _AIChatScreenState extends State<AIChatScreen> {
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white),
-                    onPressed: _sendMessage,
+                    icon: Icon(
+                      _isLoading ? Icons.hourglass_empty : Icons.send,
+                      color: Colors.teal, // Changed from purple to teal
+                    ),
+                    onPressed: _isLoading ? null : _sendMessage,
                   ),
                 ),
               ],

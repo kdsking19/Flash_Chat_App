@@ -124,9 +124,9 @@ class _SignupScreenState extends State<SignupScreen> {
                 controller: _emailController,
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  labelStyle: TextStyle(color: Colors.grey),
+                  labelStyle: const TextStyle(color: Colors.grey),
                   hintText: 'Enter your email',
-                  hintStyle: TextStyle(color: Colors.grey),
+                  hintStyle: const TextStyle(color: Colors.grey),
                   prefixIcon: const Icon(Icons.email_outlined, color: Colors.teal),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -156,9 +156,9 @@ class _SignupScreenState extends State<SignupScreen> {
                 controller: _passwordController,
                 decoration: InputDecoration(
                   labelText: 'Password',
-                  labelStyle: TextStyle(color: Colors.grey),
+                  labelStyle: const TextStyle(color: Colors.grey),
                   hintText: 'Enter your password',
-                  hintStyle: TextStyle(color: Colors.grey),
+                  hintStyle: const TextStyle(color: Colors.grey),
                   prefixIcon: const Icon(Icons.lock_outline, color: Colors.teal),
                   suffixIcon: IconButton(
                     icon: Icon(
@@ -202,9 +202,9 @@ class _SignupScreenState extends State<SignupScreen> {
                 controller: _confirmPasswordController,
                 decoration: InputDecoration(
                   labelText: 'Confirm Password',
-                  labelStyle: TextStyle(color: Colors.grey),
+                  labelStyle: const TextStyle(color: Colors.grey),
                   hintText: 'Confirm your password',
-                  hintStyle: TextStyle(color: Colors.grey),
+                  hintStyle: const TextStyle(color: Colors.grey),
                   prefixIcon: const Icon(Icons.lock_outline, color: Colors.teal),
                   suffixIcon: IconButton(
                     icon: Icon(
