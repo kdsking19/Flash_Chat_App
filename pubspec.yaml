@@ -51,8 +51,8 @@ dependencies:
 
 dev_dependencies:
   # Comment out or remove flutter_test temporarily
-  # flutter_test:
-  #   sdk: flutter
+  flutter_test:
+    sdk: flutter
 
   flutter_lints: ^2.0.0
 
