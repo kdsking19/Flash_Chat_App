@@ -42,6 +42,7 @@ class _ChatScreenState extends State<ChatScreen> {
         final newMessage = MessageModel.fromJson(messageData);
         setState(() {
           _messages.add(newMessage);
+          _messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
         });
         _scrollToBottom();
       }
@@ -58,7 +59,8 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         _messages = messagesData
             .map((messageData) => MessageModel.fromJson(messageData))
-            .toList();
+            .toList()
+          ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
       });
 
       // Scroll to bottom after loading messages
@@ -98,11 +100,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
     try {
       final messageData =
-          await _supabaseService.sendMessage(widget.user.id, messageText);
+      await _supabaseService.sendMessage(widget.user.id, messageText);
       final newMessage = MessageModel.fromJson(messageData);
 
       setState(() {
         _messages.add(newMessage);
+        _messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
       });
 
       _scrollToBottom();
@@ -154,120 +157,120 @@ class _ChatScreenState extends State<ChatScreen> {
             Expanded(
               child: _isLoading
                   ? const Center(
-                      child: CircularProgressIndicator(color: Colors.teal))
+                  child: CircularProgressIndicator(color: Colors.teal))
                   : _messages.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                  ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.chat_bubble_outline,
+                        size: 80, color: Colors.grey[400]),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No messages yet',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Start the conversation!',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                  ],
+                ),
+              )
+                  : ListView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.all(10),
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  final message = _messages[index];
+                  final isMe = message.senderId ==
+                      _supabaseService.currentUser?.id;
+
+                  // Skip rendering the message if it's from the current user
+                  // This is to fix the issue where sent messages are seen by the sender
+                  // But this approach is not recommended - we should show both sides
+                  // of the conversation for better UX
+
+                  return Align(
+                    alignment: isMe
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
+                    child: Container(
+                      constraints: BoxConstraints(
+                        maxWidth:
+                        MediaQuery.of(context).size.width * 0.75,
+                      ),
+                      margin: const EdgeInsets.symmetric(
+                        vertical: 4,
+                        horizontal: 8,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 14,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isMe ? Colors.teal[100] : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 5,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            message.content,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: isMe
+                                  ? Colors.black87
+                                  : Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.chat_bubble_outline,
-                                  size: 80, color: Colors.grey[400]),
-                              const SizedBox(height: 16),
                               Text(
-                                'No messages yet',
+                                timeago.format(message.createdAt,
+                                    locale: 'en_short'),
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 11,
                                   color: Colors.grey[600],
-                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Start the conversation!',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[500],
+                              if (isMe) ...[
+                                const SizedBox(width: 4),
+                                Icon(
+                                  message.read
+                                      ? Icons.done_all
+                                      : Icons.done,
+                                  size: 14,
+                                  color: message.read
+                                      ? Colors.blue
+                                      : Colors.grey[600],
                                 ),
-                              ),
+                              ],
                             ],
                           ),
-                        )
-                      : ListView.builder(
-                          controller: _scrollController,
-                          padding: const EdgeInsets.all(10),
-                          itemCount: _messages.length,
-                          itemBuilder: (context, index) {
-                            final message = _messages[index];
-                            final isMe = message.senderId ==
-                                _supabaseService.currentUser?.id;
-
-                            // Skip rendering the message if it's from the current user
-                            // This is to fix the issue where sent messages are seen by the sender
-                            // But this approach is not recommended - we should show both sides
-                            // of the conversation for better UX
-
-                            return Align(
-                              alignment: isMe
-                                  ? Alignment.centerRight
-                                  : Alignment.centerLeft,
-                              child: Container(
-                                constraints: BoxConstraints(
-                                  maxWidth:
-                                      MediaQuery.of(context).size.width * 0.75,
-                                ),
-                                margin: const EdgeInsets.symmetric(
-                                  vertical: 4,
-                                  horizontal: 8,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 10,
-                                  horizontal: 14,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isMe ? Colors.teal[100] : Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.05),
-                                      blurRadius: 5,
-                                      offset: const Offset(0, 1),
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      message.content,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: isMe
-                                            ? Colors.black87
-                                            : Colors.black87,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          timeago.format(message.createdAt,
-                                              locale: 'en_short'),
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                        if (isMe) ...[
-                                          const SizedBox(width: 4),
-                                          Icon(
-                                            message.read
-                                                ? Icons.done_all
-                                                : Icons.done,
-                                            size: 14,
-                                            color: message.read
-                                                ? Colors.blue
-                                                : Colors.grey[600],
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
