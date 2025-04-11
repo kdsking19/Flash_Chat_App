@@ -119,11 +119,14 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.user.username ?? 'Chat'),
-        backgroundColor: Colors.teal, // Ensure this is teal
+        automaticallyImplyLeading: false,
+        toolbarHeight: 75,
+        leading: IconButton(onPressed: () => Navigator.pop(context), icon: Icon(Icons.arrow_back_rounded), color: Colors.white,),
+        title: Text(widget.user.username ?? 'Chat', style: TextStyle(color: Colors.white),),
+        backgroundColor: Colors.teal,
         actions: [
           IconButton(
-            icon: const Icon(Icons.smart_toy),
+            icon: const Icon(Icons.smart_toy, color: Colors.white,),
             onPressed: () {
               Navigator.push(
                 context,
@@ -141,7 +144,7 @@ class _ChatScreenState extends State<ChatScreen> {
             image: const AssetImage('assets/chat_background.jpg'),
             fit: BoxFit.cover,
             colorFilter: ColorFilter.mode(
-              Colors.black.withOpacity(0.05),
+              Colors.black.withValues(alpha: 0.05),
               BlendMode.dstATop,
             ),
           ),

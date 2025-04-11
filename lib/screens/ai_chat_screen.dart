@@ -105,15 +105,18 @@ class _AIChatScreenState extends State<AIChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 75,
         elevation: 0,
-        backgroundColor: Colors.teal, // Changed from purple to teal
+        backgroundColor: Colors.teal,
+        automaticallyImplyLeading: false,
+        leading: IconButton(onPressed: () => Navigator.pop(context), icon: Icon(Icons.arrow_back_rounded), color: Colors.white,),
         title: Row(
           children: [
             Container(
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: const Icon(
@@ -269,18 +272,12 @@ class _AIChatScreenState extends State<AIChatScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.purple,
-                    borderRadius: BorderRadius.circular(25),
+                IconButton(
+                  icon: Icon(
+                    _isLoading ? Icons.hourglass_empty : Icons.send,
+                    color: Colors.teal, // Changed from purple to teal
                   ),
-                  child: IconButton(
-                    icon: Icon(
-                      _isLoading ? Icons.hourglass_empty : Icons.send,
-                      color: Colors.teal, // Changed from purple to teal
-                    ),
-                    onPressed: _isLoading ? null : _sendMessage,
-                  ),
+                  onPressed: _isLoading ? null : _sendMessage,
                 ),
               ],
             ),
