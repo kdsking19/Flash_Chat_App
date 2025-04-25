@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:chat_app/services/supabase_service.dart';
 import 'package:chat_app/screens/login_screen.dart';
 import 'package:chat_app/screens/home_screen.dart';
+import 'package:chat_app/services/supabase_service.dart';
+import 'package:provider/provider.dart';
+import 'package:chat_app/providers/theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize Supabase
-  final supabaseService = SupabaseService();
-  await supabaseService.initialize();
-  
-  runApp(const MyApp());
+  await SupabaseService().initialize();
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -20,14 +23,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final supabaseService = SupabaseService();
     final isLoggedIn = supabaseService.currentUser != null;
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'FlashChat',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: isLoggedIn ? const HomeScreen() : const LoginScreen(),
+    
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'FlashChat',
+          theme: themeProvider.lightTheme,
+          darkTheme: themeProvider.darkTheme,
+          themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          home: isLoggedIn ? const HomeScreen() : const LoginScreen(),
+        );
+      },
     );
   }
 }

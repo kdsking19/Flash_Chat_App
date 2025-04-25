@@ -48,6 +48,9 @@ dependencies:
   timeago: ^3.7.0
   badges: ^3.1.2
   win32: ^5.5.0
+  shared_preferences: ^2.2.2
+  emoji_picker_flutter: ^1.6.3
+  # Remove audioplayers and record packages if they exist
 
 dev_dependencies:
   # Comment out or remove flutter_test temporarily

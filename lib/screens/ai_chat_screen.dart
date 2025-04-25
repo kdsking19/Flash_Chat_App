@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:chat_app/services/supabase_service.dart';
 import 'package:chat_app/models/message_model.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:provider/provider.dart';
+import 'package:chat_app/providers/theme_provider.dart';
 
 class AIChatScreen extends StatefulWidget {
   const AIChatScreen({Key? key}) : super(key: key);
@@ -21,22 +23,15 @@ class _AIChatScreenState extends State<AIChatScreen> {
   void initState() {
     super.initState();
     // Add welcome message
-    _addAIMessage("Hello! I'm Groq AI. How can I help you today?");
-  }
-
-  @override
-  void dispose() {
-    _messageController.dispose();
-    _scrollController.dispose();
-    super.dispose();
+    _addAIMessage("Hello! I'm your AI assistant. How can I help you today?");
   }
 
   void _addAIMessage(String content) {
     final message = MessageModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
+      content: content,
       senderId: 'ai',
-      receiverId: _supabaseService.currentUser?.id ?? '',
-      content: content,
+      receiverId: _supabaseService.currentUser?.id ?? 'user',
       createdAt: DateTime.now(),
       read: true,
     );
@@ -44,25 +39,10 @@ class _AIChatScreenState extends State<AIChatScreen> {
     setState(() {
       _messages.add(message);
     });
-    
-    _scrollToBottom();
-  }
 
-  void _addUserMessage(String content) {
-    final message = MessageModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      senderId: _supabaseService.currentUser?.id ?? '',
-      receiverId: 'ai',
-      content: content,
-      createdAt: DateTime.now(),
-      read: true,
-    );
-
-    setState(() {
-      _messages.add(message);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom();
     });
-    
-    _scrollToBottom();
   }
 
   void _scrollToBottom() {
@@ -79,69 +59,95 @@ class _AIChatScreenState extends State<AIChatScreen> {
     final messageText = _messageController.text.trim();
     if (messageText.isEmpty) return;
 
-    _messageController.clear();
-    _addUserMessage(messageText);
+    // Add user message
+    final userMessage = MessageModel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      content: messageText,
+      senderId: _supabaseService.currentUser?.id ?? 'user',
+      receiverId: 'ai',
+      createdAt: DateTime.now(),
+      read: true,
+    );
 
     setState(() {
+      _messages.add(userMessage);
+      _messageController.clear();
       _isLoading = true;
     });
 
-    try {
-      final response = await _supabaseService.chatWithAI(messageText);
-      _addAIMessage(response);
-    } catch (e) {
-      _addAIMessage("Sorry, I couldn't process your request at the moment. Please try again later.");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    _scrollToBottom();
+
+    // Simulate AI thinking
+    await Future.delayed(const Duration(seconds: 1));
+
+    // Add AI response
+    _addAIMessage("I'm processing your message: \"$messageText\"");
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
+    
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 75,
+        toolbarHeight: 70,
         elevation: 0,
-        backgroundColor: Colors.teal,
+        backgroundColor: isDarkMode ? Color(0xFF1E1E1E) : Colors.white,
         automaticallyImplyLeading: false,
-        leading: IconButton(onPressed: () => Navigator.pop(context), icon: Icon(Icons.arrow_back_rounded), color: Colors.white,),
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(Icons.arrow_back, color: Color(0xFF00B0FF)),
+        ),
         title: Row(
           children: [
             Container(
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(20),
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [Color(0xFF00B0FF), Color(0xFF0091EA)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 5,
+                    offset: Offset(0, 2),
+                  ),
+                ],
               ),
-              child: const Icon(
-                Icons.smart_toy,
-                color: Colors.white,
-                size: 24,
+              child: Center(
+                child: Icon(
+                  Icons.auto_awesome,
+                  color: Colors.white,
+                  size: 22,
+                ),
               ),
             ),
-            const SizedBox(width: 12),
-            const Column(
+            SizedBox(width: 12),
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Llama AI',
+                  'AI Assistant',
                   style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                    color: isDarkMode ? Colors.white : Colors.black87,
                     fontSize: 18,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
-                  'AI Assistant',
+                  'Always online',
                   style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                    fontSize: 13,
                   ),
                 ),
               ],
@@ -150,21 +156,61 @@ class _AIChatScreenState extends State<AIChatScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
+            icon: Icon(
+              isDarkMode ? Icons.light_mode : Icons.dark_mode,
+              color: Color(0xFF00B0FF),
+            ),
+            onPressed: () {
+              themeProvider.toggleTheme();
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.info_outline, color: Color(0xFF00B0FF)),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: isDarkMode ? Color(0xFF2C2C2C) : Colors.white,
+                  title: Text(
+                    'About AI Assistant',
+                    style: TextStyle(
+                      color: isDarkMode ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                  content: Text(
+                    'This AI assistant can help answer your questions and provide information on various topics.',
+                    style: TextStyle(
+                      color: isDarkMode ? Colors.white70 : Colors.black87,
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text('OK', style: TextStyle(color: Color(0xFF00B0FF))),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.refresh, color: Color(0xFF00B0FF)),
             onPressed: () {
               setState(() {
                 _messages.clear();
-                _addAIMessage("Hello! I'm Groq AI. How can I help you today?");
+                _addAIMessage("Hello! I'm your AI assistant. How can I help you today?");
               });
             },
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Container(
-              color: Colors.grey.shade100,
+      body: Container(
+        decoration: BoxDecoration(
+          color: isDarkMode ? Color(0xFF121212) : Colors.white,
+        ),
+        child: Column(
+          children: [
+            Expanded(
               child: ListView.builder(
                 controller: _scrollController,
                 padding: const EdgeInsets.all(16),
@@ -172,117 +218,201 @@ class _AIChatScreenState extends State<AIChatScreen> {
                 itemBuilder: (context, index) {
                   final message = _messages[index];
                   final isMe = message.senderId != 'ai';
-
-                  return Align(
-                    alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Container(
-                      constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.75,
-                      ),
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 8,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isMe ? Colors.teal.shade100 : Colors.white,
-                        borderRadius: BorderRadius.circular(20).copyWith(
-                          bottomRight: isMe ? const Radius.circular(0) : null,
-                          bottomLeft: !isMe ? const Radius.circular(0) : null,
+                  
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12.0),
+                    child: Row(
+                      mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        if (!isMe) 
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundColor: Color(0xFF00B0FF),
+                            child: Icon(
+                              Icons.auto_awesome,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ),
+                        if (!isMe) SizedBox(width: 8),
+                        Flexible(
+                          child: Container(
+                            constraints: BoxConstraints(
+                              maxWidth: MediaQuery.of(context).size.width * 0.75,
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isMe 
+                                ? (isDarkMode ? Color(0xFF2C2C2C) : Colors.grey[200])
+                                : (isDarkMode ? Color(0xFF1E1E1E) : Colors.white),
+                              borderRadius: BorderRadius.circular(18).copyWith(
+                                bottomRight: isMe ? Radius.circular(4) : null,
+                                bottomLeft: !isMe ? Radius.circular(4) : null,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(isDarkMode ? 0.2 : 0.05),
+                                  offset: Offset(0, 1),
+                                  blurRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  message.content,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: isDarkMode ? Colors.white : Colors.black87,
+                                    height: 1.3,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      timeago.format(message.createdAt, locale: 'en_short'),
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                                      ),
+                                    ),
+                                    if (isMe) SizedBox(width: 4),
+                                    if (isMe) Icon(
+                                      Icons.done_all,
+                                      size: 14,
+                                      color: Colors.blue,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 5,
-                            offset: const Offset(0, 1),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            message.content,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: isMe ? Colors.black87 : Colors.black,
+                        if (isMe) SizedBox(width: 8),
+                        if (isMe) 
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundColor: isDarkMode ? Colors.teal.shade700 : Colors.teal.shade100,
+                            child: Text(
+                              'Me',
+                              style: TextStyle(
+                                color: isDarkMode ? Colors.white : Colors.teal.shade700,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            timeago.format(message.createdAt, locale: 'en_short'),
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
+                      ],
                     ),
                   );
                 },
               ),
             ),
-          ),
-          if (_isLoading)
-            SizedBox(
-              height: 2,
-              child: const LinearProgressIndicator(
-                backgroundColor: Colors.transparent,
-                color: Colors.purple,
+            if (_isLoading)
+              Container(
+                height: 30,
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Color(0xFF00B0FF),
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Thinking...',
+                      style: TextStyle(
+                        color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: isDarkMode ? Color(0xFF1E1E1E) : Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.emoji_emotions_outlined, 
+                      color: isDarkMode ? Colors.grey[400] : Colors.grey[600]),
+                    onPressed: () {},
+                  ),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: isDarkMode ? Color(0xFF2C2C2C) : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: TextField(
+                        controller: _messageController,
+                        decoration: InputDecoration(
+                          hintText: 'Type a message...',
+                          hintStyle: TextStyle(color: isDarkMode ? Colors.grey[500] : Colors.grey[500]),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(Icons.attach_file, 
+                              color: isDarkMode ? Colors.grey[400] : Colors.grey[600]),
+                            onPressed: () {},
+                          ),
+                        ),
+                        style: TextStyle(
+                          color: isDarkMode ? Colors.white : Colors.black87,
+                        ),
+                        textCapitalization: TextCapitalization.sentences,
+                        maxLines: null,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Color(0xFF00B0FF),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        _isLoading ? Icons.hourglass_empty : 
+                          (_messageController.text.isEmpty ? Icons.send : Icons.send),
+                        color: Colors.white,
+                      ),
+                      onPressed: _isLoading ? null : _sendMessage,
+                    ),
+                  ),
+                ],
               ),
             ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, -5),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: TextField(
-                      controller: _messageController,
-                      decoration: InputDecoration(
-                        hintText: 'Ask Groq AI something...',
-                        hintStyle: TextStyle(color: Colors.grey[500]),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                      ),
-                      textCapitalization: TextCapitalization.sentences,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: Icon(
-                    _isLoading ? Icons.hourglass_empty : Icons.send,
-                    color: Colors.teal, // Changed from purple to teal
-                  ),
-                  onPressed: _isLoading ? null : _sendMessage,
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
