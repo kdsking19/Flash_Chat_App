@@ -136,6 +136,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      SizedBox(width: MediaQuery.of(context).size.width*0.09),
                       Text(
                         'Create Account',
                         textAlign: TextAlign.center,
