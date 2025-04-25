@@ -176,7 +176,7 @@ class _ChatScreenState extends State<ChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.user.username ?? 'AI Assistant',
+                  widget.user.username ?? '',
                   style: TextStyle(
                     color: isDarkMode ? Colors.white : Colors.black87,
                     fontSize: 16,
@@ -184,7 +184,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 Text(
-                  'Always online',
+                  'Online',
                   style: TextStyle(
                     color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                     fontSize: 12,
@@ -203,10 +203,6 @@ class _ChatScreenState extends State<ChatScreen> {
             onPressed: () {
               themeProvider.toggleTheme();
             },
-          ),
-          IconButton(
-            icon: Icon(Icons.refresh, color: Color(0xFF00B0FF)),
-            onPressed: () {},
           ),
         ],
       ),
